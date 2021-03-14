@@ -50,31 +50,37 @@
 //#define R61581_DRIVER
 //#define RM68140_DRIVER
 //#define ST7796_DRIVER
+//#define SSD1963_480_DRIVER
+//#define SSD1963_800_DRIVER
+//#define SSD1963_800ALT_DRIVER
+//#define ILI9225_DRIVER
+//#define GC9A01_DRIVER
 
 // Some displays support SPI reads via the MISO pin, other displays have a single
 // bi-directional SDA pin and the library will try to read this via the MOSI line.
 // To use the SDA line for reading data from the TFT uncomment the following line:
 
-// #define TFT_SDA_READ      // This option is for ESP32 ONLY, tested with ST7789 display only
+// #define TFT_SDA_READ      // This option is for ESP32 ONLY, tested with ST7789 and GC9A01 display only
 
-// For ST7789 and ILI9341 ONLY, define the colour order IF the blue and red are swapped on your display
+// For ST7735, ST7789 and ILI9341 ONLY, define the colour order IF the blue and red are swapped on your display
 // Try ONE option at a time to find the correct colour order for your display
 
-//  #define TFT_RGB_ORDER TFT_RGB  // Colour order Red-Green-Blue
-//  #define TFT_RGB_ORDER TFT_BGR  // Colour order Blue-Green-Red
+//#define TFT_RGB_ORDER TFT_RGB  // Colour order Red-Green-Blue
+  #define TFT_RGB_ORDER TFT_BGR  // Colour order Blue-Green-Red
 
 // For M5Stack ESP32 module with integrated ILI9341 display ONLY, remove // in line below
 
 // #define M5STACK
 
-// For ST7789, ST7735 and ILI9163 ONLY, define the pixel width and height in portrait orientation
+// For ST7789, ST7735, ILI9163 and GC9A01 ONLY, define the pixel width and height in portrait orientation
 // #define TFT_WIDTH  80
- #define TFT_WIDTH  128
+#define TFT_WIDTH  128
 // #define TFT_WIDTH  240 // ST7789 240 x 240 and 240 x 320
 // #define TFT_HEIGHT 160
- #define TFT_HEIGHT 128
+#define TFT_HEIGHT 128
 // #define TFT_HEIGHT 240 // ST7789 240 x 240
 // #define TFT_HEIGHT 320 // ST7789 240 x 320
+//#define TFT_HEIGHT 240 // GC9A01 240 x 240
 
 // For ST7735 ONLY, define the type of display, originally this was based on the
 // colour of the tab on the screen protector film but this is not always true, so try
@@ -86,7 +92,7 @@
 // #define ST7735_INITB
 // #define ST7735_GREENTAB
 // #define ST7735_GREENTAB2
- #define ST7735_GREENTAB3
+#define ST7735_GREENTAB3
 // #define ST7735_GREENTAB128    // For 128 x 128 display
 // #define ST7735_GREENTAB160x80 // For 160 x 80 display (BGR, inverted, 26 offset)
 // #define ST7735_REDTAB
@@ -193,6 +199,16 @@
 //#define TFT_RST   4  // Reset pin (could connect to RST pin)
 //#define TFT_RST  -1  // Set TFT_RST to -1 if display RESET is connected to ESP32 board RST
 
+// For ESP32 Dev board (only tested with GC9A01 display)
+// The hardware SPI can be mapped to any pins
+
+//#define TFT_MOSI 15 // In some display driver board, it might be written as "SDA" and so on.
+//#define TFT_SCLK 14
+//#define TFT_CS   5  // Chip select control pin
+//#define TFT_DC   27  // Data Command control pin
+//#define TFT_RST  33  // Reset pin (could connect to Arduino RESET pin)
+//#define TFT_BL   22  // LED back-light
+
 //#define TOUCH_CS 21     // Chip select pin (T_CS) of touch screen
 
 //#define TFT_WR 22    // Write strobe for modified Raspberry Pi TFT only
@@ -236,6 +252,31 @@
 //#define TFT_D6   27
 //#define TFT_D7   14
 
+// ######       EDIT THE PINs BELOW TO SUIT YOUR STM32 SPI TFT SETUP        ######
+
+// The TFT can be connected to SPI port 1 or 2
+//#define TFT_SPI_PORT 1 // SPI port 1 maximum clock rate is 55MHz
+//#define TFT_MOSI PA7
+//#define TFT_MISO PA6
+//#define TFT_SCLK PA5
+
+//#define TFT_SPI_PORT 2 // SPI port 2 maximum clock rate is 27MHz
+//#define TFT_MOSI PB15
+//#define TFT_MISO PB14
+//#define TFT_SCLK PB13
+
+// Can use Ardiuno pin references, arbitrary allocation, TFT_eSPI controls chip select
+//#define TFT_CS   D5 // Chip select control pin to TFT CS
+//#define TFT_DC   D6 // Data Command control pin to TFT DC (may be labelled RS = Register Select)
+//#define TFT_RST  D7 // Reset pin to TFT RST (or RESET)
+// OR alternatively, we can use STM32 port reference names PXnn
+//#define TFT_CS   PE11 // Nucleo-F767ZI equivalent of D5
+//#define TFT_DC   PE9  // Nucleo-F767ZI equivalent of D6
+//#define TFT_RST  PF13 // Nucleo-F767ZI equivalent of D7
+
+//#define TFT_RST  -1   // Set TFT_RST to -1 if the display RESET is connected to processor reset
+                        // Use an Arduino pin for initial testing as connecting to processor reset
+                        // may not work (pulse too short at power up?)
 
 // ##################################################################################
 //
@@ -249,17 +290,17 @@
 // about 17Kbytes. To save FLASH space only enable the fonts you need!
 
 #define LOAD_GLCD   // Font 1. Original Adafruit 8 pixel font needs ~1820 bytes in FLASH
-//#define LOAD_FONT2  // Font 2. Small 16 pixel high font, needs ~3534 bytes in FLASH, 96 characters
-//#define LOAD_FONT4  // Font 4. Medium 26 pixel high font, needs ~5848 bytes in FLASH, 96 characters
-//#define LOAD_FONT6  // Font 6. Large 48 pixel font, needs ~2666 bytes in FLASH, only characters 1234567890:-.apm
-//#define LOAD_FONT7  // Font 7. 7 segment 48 pixel font, needs ~2438 bytes in FLASH, only characters 1234567890:-.
-//#define LOAD_FONT8  // Font 8. Large 75 pixel font needs ~3256 bytes in FLASH, only characters 1234567890:-.
+#define LOAD_FONT2  // Font 2. Small 16 pixel high font, needs ~3534 bytes in FLASH, 96 characters
+#define LOAD_FONT4  // Font 4. Medium 26 pixel high font, needs ~5848 bytes in FLASH, 96 characters
+#define LOAD_FONT6  // Font 6. Large 48 pixel font, needs ~2666 bytes in FLASH, only characters 1234567890:-.apm
+#define LOAD_FONT7  // Font 7. 7 segment 48 pixel font, needs ~2438 bytes in FLASH, only characters 1234567890:-.
+#define LOAD_FONT8  // Font 8. Large 75 pixel font needs ~3256 bytes in FLASH, only characters 1234567890:-.
 //#define LOAD_FONT8N // Font 8. Alternative to Font 8 above, slightly narrower, so 3 digits fit a 160 pixel TFT
 #define LOAD_GFXFF  // FreeFonts. Include access to the 48 Adafruit_GFX free fonts FF1 to FF48 and custom fonts
 
 // Comment out the #define below to stop the SPIFFS filing system and smooth font code being loaded
 // this will save ~20kbytes of FLASH
-//#define SMOOTH_FONT
+#define SMOOTH_FONT
 
 
 // ##################################################################################
@@ -280,6 +321,7 @@
 // #define SPI_FREQUENCY  20000000
 #define SPI_FREQUENCY  39000000 // Actually sets it to 26.67MHz = 80/3
 // #define SPI_FREQUENCY  40000000
+// #define SPI_FREQUENCY  55000000 // STM32 SPI1 only (SPI2 maximum is 27MHz)
 // #define SPI_FREQUENCY  80000000
 
 // Optional reduced SPI frequency for reading TFT
